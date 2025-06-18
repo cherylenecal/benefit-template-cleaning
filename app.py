@@ -4,7 +4,10 @@ from io import BytesIO
 
 # Function to filter data
 def filter_data(df):
-    df = df[df['Status Claim'] == 'R']
+    if 'Status Claim' in df.columns:
+        df = df[df['Status Claim'] == 'R']
+    else:
+        print("⚠️ Kolom 'Status Claim' tidak ditemukan. Data tidak difilter.")
     return df
 
 # Main processing function
