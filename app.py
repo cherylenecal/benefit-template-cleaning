@@ -15,12 +15,12 @@ def move_to_template(df):
     # Step 1: Filter the data
     new_df = filter_data(df)
     
-    # Step 3: Convert date columns to datetime
-    date_columns = ["Treatment Start", "Treatment Finish", "Payment Date"]
-    for col in date_columns:
-        new_df[col] = pd.to_datetime(new_df[col], errors='coerce')
-        if new_df[col].isnull().any():
-            st.warning(f"Invalid date values detected in column '{col}'. Coerced to NaT.")
+    # # Step 3: Convert date columns to datetime
+    # date_columns = ["Treatment Start", "Treatment Finish", "Payment Date"]
+    # for col in date_columns:
+    #     new_df[col] = pd.to_datetime(new_df[col], errors='coerce')
+    #     if new_df[col].isnull().any():
+    #         st.warning(f"Invalid date values detected in column '{col}'. Coerced to NaT.")
             
     # Step 5: Transform to the new template
     new_df = new_df.drop(columns=["Claim Status"], errors='ignore')
