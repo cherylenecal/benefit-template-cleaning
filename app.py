@@ -14,10 +14,7 @@ def filter_data(df):
 def move_to_template(df):
     # Step 1: Filter the data
     new_df = filter_data(df)
-
-    # Step 2: Handle duplicates
-    new_df = keep_last_duplicate(new_df)
-
+    
     # Step 3: Convert date columns to datetime
     date_columns = ["Treatment Start", "Treatment Finish", "Payment Date"]
     for col in date_columns:
