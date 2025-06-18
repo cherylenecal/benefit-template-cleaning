@@ -7,15 +7,6 @@ def filter_data(df):
     df = df[df['ClaimStatus'] == 'R']
     return df
 
-# Function to handle duplicates
-def keep_last_duplicate(df):
-    duplicate_claims = df[df.duplicated(subset='ClaimNo', keep=False)]
-    if not duplicate_claims.empty:
-        st.write("Duplicated ClaimNo values:")
-        st.write(duplicate_claims[['ClaimNo']].drop_duplicates())
-    df = df.drop_duplicates(subset='ClaimNo', keep='last')
-    return df
-
 # Main processing function
 def move_to_template(df):
     # Step 1: Filter the data
@@ -25,55 +16,17 @@ def move_to_template(df):
     new_df = keep_last_duplicate(new_df)
 
     # Step 3: Convert date columns to datetime
-    date_columns = ["TreatmentStart", "TreatmentFinish", "Date"]
+    date_columns = ["Treatment Start", "Treatment Finish", "Payment Date"]
     for col in date_columns:
         new_df[col] = pd.to_datetime(new_df[col], errors='coerce')
         if new_df[col].isnull().any():
             st.warning(f"Invalid date values detected in column '{col}'. Coerced to NaT.")
-
-    # Step 4: Standardize (uppercase etc)
-    upper_columns = ["RoomOption", "TreatmentPlace", "PrimaryDiagnosis"]
-    for col in upper_columns:
-        new_df[col] = new_df[col].str.upper()
-    if "RoomOption" in new_df.columns:
-        new_df["RoomOption"] = new_df["RoomOption"].astype(str).str.strip().str.upper()
-        new_df.loc[new_df["RoomOption"] == "ON PLAN", "RoomOption"] = "ONPLAN"
-    new_df["RoomOption"] = new_df["RoomOption"].replace(
-        to_replace=["NAN", "NONE", "NaN", "nan", ""], value=""
-    )
-
+            
     # Step 5: Transform to the new template
-    df_transformed = pd.DataFrame({
-        "No": range(1, len(new_df) + 1),
-        "Policy No": new_df["PolicyNo"],
-        "Client Name": new_df["ClientName"],
-        "Note No": new_df["NoteNo"],
-        "Claim No": new_df["ClaimNo"],
-        "Member No": new_df["MemberNo"],
-        "Emp ID": new_df["EmpID"],
-        "Emp Name": new_df["EmpName"],
-        "Patient Name": new_df["PatientName"],
-        "Membership": new_df["Membership"],
-        "Product Type": new_df["ProductType"],
-        "Claim Type": new_df["ClaimType"],
-        "Room Option": new_df["RoomOption"],
-        "Area": new_df["Area"],
-        "Plan": new_df["PPlan"],
-        "Diagnosis": new_df["PrimaryDiagnosis"],
-        "Treatment Place": new_df["TreatmentPlace"],
-        "Treatment Start": new_df["TreatmentStart"],
-        "Treatment Finish": new_df["TreatmentFinish"],
-        "Settled Date": new_df["Date"],
-        "Year": new_df["Date"].dt.year,
-        "Month": new_df["Date"].dt.month,
-        "Length of Stay": new_df["LOS"],
-        "Sum of Billed": new_df["Billed"],
-        "Sum of Accepted": new_df["Accepted"],
-        "Sum of Excess Coy": new_df["ExcessCoy"],
-        "Sum of Excess Emp": new_df["ExcessEmp"],
-        "Sum of Excess Total": new_df["ExcessTotal"],
-        "Sum of Unpaid": new_df["Unpaid"]
-    })
+    new_df = new_df.drop(columns=["Claim Status"], errors='ignore')
+    new_df = new_df.drop(columns=["BAmount"], errors='ignore')
+
+    df_transformed = new_df
     return df_transformed
 
 # Save the processed data to Excel and return as BytesIO
@@ -102,18 +55,18 @@ if uploaded_file:
     st.dataframe(transformed_data.head())
 
     # Compute summary statistics
-    total_claims = len(transformed_data)
-    total_billed = int(transformed_data["Sum of Billed"].sum())
-    total_accepted = int(transformed_data["Sum of Accepted"].sum())
-    total_excess = int(transformed_data["Sum of Excess Total"].sum())
-    total_unpaid = int(transformed_data["Sum of Unpaid"].sum())
+    total_benefit = len(transformed_data)
+    total_billed = int(transformed_data["Billed"].sum())
+    total_accepted = int(transformed_data["Accepted"].sum())
+    total_excess = int(transformed_data["Excess Total"].sum())
+    total_unpaid = int(transformed_data["Unpaid"].sum())
 
     st.write("Claim Summary:")
-    st.write(f"- Total Claims: {total_claims:,}")
-    st.write(f"- Total Billed: {total_billed:,.2f}")
-    st.write(f"- Total Accepted: {total_accepted:,.2f}")
-    st.write(f"- Total Excess: {total_excess:,.2f}")
-    st.write(f"- Total Unpaid: {total_unpaid:,.2f}")
+    st.write(f"- Total Claims: {total_benefit:,}")
+    st.write(f"- Total Billed: {total_billed:,}")
+    st.write(f"- Total Accepted: {total_accepted:,}")
+    st.write(f"- Total Excess: {total_excess:,}")
+    st.write(f"- Total Unpaid: {total_unpaid:,}")
 
     # User input for filename
     filename = st.text_input("Enter the Excel file name (without extension):", "Transformed_Claim_Data")
