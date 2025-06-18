@@ -5,7 +5,7 @@ from io import BytesIO
 # Function to filter data
 def filter_data(df):
     if 'Status Claim' in df.columns:
-        df = df[df['Status Claim'] == 'R']
+        df = df[df['Status_Claim'] == 'R']
     else:
         print("⚠️ Kolom 'Status Claim' tidak ditemukan. Data tidak difilter.")
     return df
@@ -15,15 +15,15 @@ def move_to_template(df):
     # Step 1: Filter the data
     new_df = filter_data(df)
     
-    # # Step 3: Convert date columns to datetime
-    # date_columns = ["Treatment Start", "Treatment Finish", "Payment Date"]
-    # for col in date_columns:
-    #     new_df[col] = pd.to_datetime(new_df[col], errors='coerce')
-    #     if new_df[col].isnull().any():
-    #         st.warning(f"Invalid date values detected in column '{col}'. Coerced to NaT.")
+    # Step 3: Convert date columns to datetime
+    date_columns = ["TreatmentStart", "TreatmentFinish", "PaymentDate"]
+    for col in date_columns:
+        new_df[col] = pd.to_datetime(new_df[col], errors='coerce')
+        if new_df[col].isnull().any():
+            st.warning(f"Invalid date values detected in column '{col}'. Coerced to NaT.")
             
     # Step 5: Transform to the new template
-    new_df = new_df.drop(columns=["Claim Status"], errors='ignore')
+    new_df = new_df.drop(columns=["Status_Claim"], errors='ignore')
     new_df = new_df.drop(columns=["BAmount"], errors='ignore')
 
     df_transformed = new_df
@@ -58,7 +58,7 @@ if uploaded_file:
     total_benefit = len(transformed_data)
     total_billed = int(transformed_data["Billed"].sum())
     total_accepted = int(transformed_data["Accepted"].sum())
-    total_excess = int(transformed_data["Excess Total"].sum())
+    total_excess = int(transformed_data["ExcessTotal"].sum())
     total_unpaid = int(transformed_data["Unpaid"].sum())
 
     st.write("Claim Summary:")
