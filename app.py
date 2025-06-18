@@ -58,7 +58,7 @@ if uploaded_file:
     total_benefit = len(transformed_data)
     total_billed = int(transformed_data["Billed"].sum())
     total_accepted = int(transformed_data["Accepted"].sum())
-    total_excess = int(transformed_data["Excess Total"].sum())
+    total_excess = int(transformed_data["Excess"].sum())
     total_unpaid = int(transformed_data["Unpaid"].sum())
 
     st.write("Claim Summary:")
