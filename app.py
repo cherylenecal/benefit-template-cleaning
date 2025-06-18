@@ -14,6 +14,11 @@ def filter_data(df):
 def move_to_template(df):
     # Step 1: Filter the data
     new_df = filter_data(df)
+
+    df.columns = df.columns.str.strip()
+    for col in df.columns:
+    if df[col].dtype == "object":
+        df[col] = df[col].astype(str).str.strip()
     
     # Step 3: Convert date columns to datetime
     date_columns = ["TreatmentStart", "TreatmentFinish", "PaymentDate"]
