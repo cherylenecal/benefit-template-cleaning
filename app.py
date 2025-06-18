@@ -17,8 +17,8 @@ def move_to_template(df):
 
     df.columns = df.columns.str.strip()
     for col in df.columns:
-    if df[col].dtype == "object":
-        df[col] = df[col].astype(str).str.strip()
+        if df[col].dtype == "object":
+            df[col] = df[col].astype(str).str.strip()
     
     # Step 3: Convert date columns to datetime
     date_columns = ["TreatmentStart", "TreatmentFinish", "PaymentDate"]
